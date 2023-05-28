@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+
+{% block title %} Send Email {% endblock title %}
+
+{% block content %}
+
+<div class="container py-5 my-5" id="app" >
+    <h3 class="is-size-3 has-text-centered">Send Emails</h3>
+    <hr>
+    <form @submit="handleSubmit" class="columns is-multiline">
+      {% csrf_token %}
+      <div class="column is-full">
+        <input class="input" v-model="email_subject" type="text" placeholder="Email subject" >
+        <small v-if="errors.email_subject" class="has-text-danger" >[[errors.email_subject]]</small>
+      </div>
+      <div class="column is-full">
+        <textarea class="textarea" v-model="email_body" placeholder="Type your message"></textarea>
+        <small v-if="errors.email_body" class="has-text-danger" >[[errors.email_body]]</small>
+      </div>
+      <div class="column is-full">
+        <input-tag validate="email" v-model="email_addresses" placeholder="Enter emails"></input-tag>
+        <small v-if="errors.email_addresses" class="has-text-danger" >[[errors.email_addresses]]</small>
+      </div>
+        <div class="file has-name is-fullwidth column is-12">
+          <label class="file-label">
+              <input class="file-input" type="file" ref="attachment" name="attachment" @change="handleFileUpload">
+              <span class="file-cta">
+              <span class="file-icon">
+                  <i class="fas fa-upload"></i>
+              </span>
+              <span class="file-label">
+                  Attach file
+              </span>
+              </span>
+              <span class="file-name">
+                [[attachment_name]]
+            </span>
+          </label>
+      </div>
+      <div class="column is-full">
+        <button v-if="in_progress" disabled class="button is-primary is-full" >Sending....</button>
+        <button v-else class="button is-primary is-full" >Send</button>
+      </div>
+    </form>
+  </div>
+  </div>
+
+{% endblock content %}
+
+{% block scripts %}
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+<script src="https://unpkg.com/vue-input-tag"></script>
+
+<script>
+  Vue.component('input-tag', vueInputTag.default);
+  
+  const app = new Vue({
+    delimiters : ['[[',']]'],
+    el: '#app',
+    data:{
+        email_subject: "",
+        email_body: "",
+        email_addresses: [],
+        attachment: "",
+        attachment_name: "",
+        in_progress: false,
+        errors: {}
+      },
+
+    methods: {
+      formIsValid() {
+        let valid = true;
+        this.errors = {
+          
+        };
+        if(!this.email_subject) {
+          this.errors.email_subject = "The field can't be blank";
+        }
+        if(!this.email_body) {
+          this.errors.email_body = "The field can't be blank";
+        }
+        if(this.email_addresses.length < 1) {
+          this.errors.email_addresses = "Please enter at least one email";
+        }
+        if(Object.keys(this.errors).length > 0) {
+          valid = false;
+        }
+        console.log(this.errors);
+        return valid;
+      },
+
+      handleFileUpload() {
+            this.attachment = this.$refs.attachment.files[0];
+            this.attachment_name = this.attachment.name;
+            console.log(this.resume);
+        },
+
+      async sendEmails() {
+          try {
+            this.errors = {};
+            this.in_progress = true;
+            let formData = new FormData();
+            formData.append('email_subject', this.email_subject);
+            formData.append('email_body', this.email_body);
+            formData.append('attachment', this.attachment);
+            for(let email of this.email_addresses) {
+              formData.append('email_addresses', email);
+
+            }
+            const url = '/send-emails/';
+            const request = await fetch(url, {
+              method: "POST",
+              body: formData
+            })
+            if(request.ok) {
+              const response = await request.json();
+              if(response.success) {
+                this.email_subject = "",
+                this.email_body = "";
+                this.email_addresses = [];
+                this.attachment = "";
+                this.attachment_name = "";
+                toastr.success("Emails have been sent");
+                this.in_progress = false;
+              }
+            }
+            else {
+            this.in_progress = false;
+              toastr.error("Something went wrong");
+            }
+
+          }
+          catch(error) {
+            toastr.error("Something went wrong");
+            this.in_progress = false;
+          }
+      },
+      handleSubmit() {
+        event.preventDefault();
+        if(this.formIsValid()) {
+          this.sendEmails();
+        }
+      }
+    }
+});
+
+</script>
+
+{% endblock scripts %}
