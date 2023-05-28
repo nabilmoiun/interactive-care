@@ -6,8 +6,8 @@ So the mails won't go to real mail inboxes. Follow the steps below to run the ap
 Run
 ====
 
-    $ git clone https://github.com/nabilmoiun/iteractive-care.git
-    $ cd iteractive-care
+    $ git clone https://github.com/nabilmoiun/interactive-care.git
+    $ cd interactive-care
     $ pip install virtualenv
     $ virtualenv venv
     $ source venv/bin/activate
