@@ -1,7 +1,9 @@
 Overview
 ========
 A simple Application using Django, Django Rest Framework (DRF), Vue that allows a user to send bulk emails. For simplicity, I have used dummy SMTP server Mailtrap, for development and testing.
-So the mails won't go to real mail inboxes. Follow the steps below to run the application:
+So the mails won't go to real mail inboxes.
+You can watch this video **https://www.loom.com/share/5a4e328fb62848458e91b3f8780639b8?t=315** to run the app & see the demo or
+Follow the steps below to run the application on your machine(You must have python installed on your machine):
 
 Run
 ====
