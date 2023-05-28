@@ -8,6 +8,9 @@ Run
 
     $ git clone https://github.com/nabilmoiun/iteractive-care.git
     $ cd iteractive-care
+    $ pip install virtualenv
+    $ virtualenv venv
+    $ source venv/bin/activate
     $ pip install -r requirements.txt
     $ python manage.py runserver
 
